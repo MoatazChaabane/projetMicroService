@@ -25,7 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 @Tag(name = "Administration", description = "API pour la gestion des utilisateurs (ADMIN uniquement)")
-@SecurityRequirement(name = "cookieAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminController {
     
     private final UserService userService;
@@ -59,7 +59,7 @@ public class AdminController {
             @ApiResponse(responseCode = "403", description = "Accès refusé - Admin uniquement")
     })
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String userId) {
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long userId) {
         UserResponseDTO user = userService.getProfile(userId);
         return ResponseEntity.ok(user);
     }
@@ -75,7 +75,7 @@ public class AdminController {
     })
     @PutMapping("/users/{userId}")
     public ResponseEntity<Map<String, Object>> updateUser(
-            @PathVariable String userId,
+            @PathVariable Long userId,
             @Valid @RequestBody UpdateProfileDTO updateDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminEmail = authentication.getName();
@@ -99,7 +99,7 @@ public class AdminController {
     })
     @PutMapping("/users/{userId}/password")
     public ResponseEntity<Map<String, String>> changeUserPassword(
-            @PathVariable String userId,
+            @PathVariable Long userId,
             @Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminEmail = authentication.getName();
@@ -122,7 +122,7 @@ public class AdminController {
     })
     @PostMapping(value = "/users/{userId}/photo", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, Object>> uploadUserPhoto(
-            @PathVariable String userId,
+            @PathVariable Long userId,
             @RequestParam("file") MultipartFile file) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminEmail = authentication.getName();

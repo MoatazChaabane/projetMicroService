@@ -28,7 +28,7 @@ import java.util.Map;
 @RequestMapping("/api/profile")
 @RequiredArgsConstructor
 @Tag(name = "Gestion du Profil", description = "API pour la gestion du profil utilisateur")
-@SecurityRequirement(name = "cookieAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class ProfileController {
     
     private final UserService userService;

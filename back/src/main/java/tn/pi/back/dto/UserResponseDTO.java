@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 @Schema(description = "Réponse contenant les informations d'un utilisateur")
 public class UserResponseDTO {
-    @Schema(description = "Identifiant unique de l'utilisateur", example = "507f1f77bcf86cd799439011")
-    private String id;
+    @Schema(description = "Identifiant unique de l'utilisateur", example = "1")
+    private Long id;
     
     @Schema(description = "Adresse email", example = "user@example.com")
     private String email;

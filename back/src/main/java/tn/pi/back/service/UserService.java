@@ -69,7 +69,7 @@ public class UserService implements UserDetailsService {
     }
     
     @Transactional
-    public UserResponseDTO updateProfile(String userId, UpdateProfileDTO updateDTO, String currentUserEmail) {
+    public UserResponseDTO updateProfile(Long userId, UpdateProfileDTO updateDTO, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
         
@@ -106,7 +106,7 @@ public class UserService implements UserDetailsService {
     }
     
     @Transactional
-    public void changePassword(String userId, ChangePasswordDTO changePasswordDTO, String currentUserEmail) {
+    public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
         
@@ -131,7 +131,7 @@ public class UserService implements UserDetailsService {
     }
     
     @Transactional
-    public UserResponseDTO uploadPhoto(String userId, MultipartFile file, String currentUserEmail) {
+    public UserResponseDTO uploadPhoto(Long userId, MultipartFile file, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
         
@@ -149,7 +149,7 @@ public class UserService implements UserDetailsService {
         }
         
         // Stocker la nouvelle photo
-        String photoUrl = fileStorageService.storeFile(file, userId);
+        String photoUrl = fileStorageService.storeFile(file, userId.toString());
         user.setPhotoUrl(photoUrl);
         user.setUpdatedAt(LocalDateTime.now());
         
@@ -158,7 +158,7 @@ public class UserService implements UserDetailsService {
     }
     
     @Transactional
-    public UserResponseDTO deletePhoto(String userId, String currentUserEmail) {
+    public UserResponseDTO deletePhoto(Long userId, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
         
@@ -181,7 +181,7 @@ public class UserService implements UserDetailsService {
         return mapToResponseDTO(user);
     }
     
-    public UserResponseDTO getProfile(String userId) {
+    public UserResponseDTO getProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
         return mapToResponseDTO(user);

@@ -13,11 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import tn.pi.back.dto.LoginDTO;
 import tn.pi.back.dto.RegisterDTO;
 import tn.pi.back.dto.UserResponseDTO;
+import tn.pi.back.service.JwtService;
 import tn.pi.back.service.UserService;
 
 import java.util.HashMap;
@@ -31,6 +32,7 @@ public class AuthController {
     
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
     
     @Operation(
             summary = "Inscription d'un nouvel utilisateur",
@@ -53,7 +55,7 @@ public class AuthController {
     
     @Operation(
             summary = "Connexion d'un utilisateur",
-            description = "Authentifie un utilisateur avec son email et mot de passe. Crée une session et retourne un cookie JSESSIONID."
+            description = "Authentifie un utilisateur avec son email et mot de passe. Retourne un token JWT."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Connexion réussie",
@@ -70,11 +72,13 @@ public class AuthController {
                 )
             );
             
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String jwtToken = jwtService.generateToken(userDetails);
             
             UserResponseDTO user = userService.getProfileByEmail(authentication.getName());
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Connexion réussie");
+            response.put("token", jwtToken);
             response.put("user", user);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -86,14 +90,14 @@ public class AuthController {
     
     @Operation(
             summary = "Déconnexion",
-            description = "Déconnecte l'utilisateur actuel et invalide la session."
+            description = "Déconnecte l'utilisateur actuel. Avec JWT, la déconnexion se fait côté client en supprimant le token."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Déconnexion réussie")
     })
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout() {
-        // La logique de déconnexion est gérée par Spring Security
+        // Avec JWT, la déconnexion est gérée côté client en supprimant le token
         Map<String, String> response = new HashMap<>();
         response.put("message", "Déconnexion réussie");
         return ResponseEntity.ok(response);
@@ -101,7 +105,7 @@ public class AuthController {
     
     @Operation(
             summary = "Récupérer l'utilisateur actuel",
-            description = "Retourne les informations de l'utilisateur actuellement connecté."
+            description = "Retourne les informations de l'utilisateur actuellement connecté à partir du token JWT."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Utilisateur trouvé",
@@ -109,8 +113,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Non authentifié")
     })
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             UserResponseDTO user = userService.getProfileByEmail(authentication.getName());
             return ResponseEntity.ok(user);

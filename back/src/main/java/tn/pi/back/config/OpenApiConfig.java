@@ -15,7 +15,7 @@ public class OpenApiConfig {
     
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "cookieAuth";
+        final String securitySchemeName = "bearerAuth";
         
         return new OpenAPI()
                 .info(new Info()
@@ -33,10 +33,10 @@ public class OpenApiConfig {
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
                                         .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.APIKEY)
-                                        .in(SecurityScheme.In.COOKIE)
-                                        .name("JSESSIONID")
-                                        .description("Authentification par session (cookie JSESSIONID). Connectez-vous via /api/auth/login pour obtenir le cookie.")));
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .description("Authentification par JWT. Connectez-vous via /api/auth/login pour obtenir le token.")));
     }
 }
 
