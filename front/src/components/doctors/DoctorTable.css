@@ -1,0 +1,152 @@
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.doctor-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.doctor-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.doctor-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.doctor-table th.sortable:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.doctor-table tbody tr {
+  border-bottom: 1px solid #ecf0f1;
+  transition: background-color 0.2s;
+}
+
+.doctor-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.doctor-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.doctor-table td {
+  padding: 16px;
+  font-size: 0.95em;
+}
+
+.doctor-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-name strong {
+  color: #2c3e50;
+  font-size: 1em;
+}
+
+.doctor-email {
+  color: #7f8c8d;
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.badge-specialite {
+  background: #e8f4f8;
+  color: #2980b9;
+}
+
+.badge-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-secondary {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+.rating-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.review-count {
+  color: #7f8c8d;
+  font-size: 0.85em;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-action {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  transform: scale(1.1);
+  background-color: #f0f0f0;
+}
+
+.btn-view:hover {
+  background-color: #e3f2fd;
+}
+
+.btn-edit:hover {
+  background-color: #fff3e0;
+}
+
+.btn-delete:hover {
+  background-color: #ffebee;
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .doctor-table {
+    min-width: 800px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}
+

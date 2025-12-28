@@ -43,10 +43,10 @@ public class Doctor {
     @Column(length = 500)
     private String adresse;
     
-    @Column(precision = 10, scale = 8)
+    @Column(columnDefinition = "DOUBLE")
     private Double latitude;
     
-    @Column(precision = 11, scale = 8)
+    @Column(columnDefinition = "DOUBLE")
     private Double longitude;
     
     @Column(precision = 10, scale = 2)

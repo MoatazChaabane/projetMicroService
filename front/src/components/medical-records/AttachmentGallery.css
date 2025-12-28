@@ -1,0 +1,265 @@
+.attachment-gallery {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.gallery-header h3 {
+  margin: 0;
+  color: #1565C0;
+  font-size: 1.2em;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 6px 12px;
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: 16px;
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #616161;
+}
+
+.filter-tab:hover {
+  background: #E0E0E0;
+}
+
+.filter-tab.active {
+  background: #1E88E5;
+  color: white;
+  border-color: #1E88E5;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.gallery-item {
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.gallery-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.gallery-item-image {
+  height: 150px;
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 16px;
+}
+
+.image-icon {
+  font-size: 3em;
+  margin-bottom: 8px;
+}
+
+.image-label {
+  font-size: 0.85em;
+  color: #616161;
+  text-align: center;
+  word-break: break-word;
+}
+
+.gallery-item-info {
+  padding: 12px;
+}
+
+.gallery-item-name {
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 4px 0;
+  font-size: 0.9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gallery-item-description {
+  font-size: 0.85em;
+  color: #616161;
+  margin: 0 0 8px 0;
+}
+
+.gallery-item-date {
+  font-size: 0.8em;
+  color: #9E9E9E;
+  margin: 0 0 8px 0;
+}
+
+.btn-download-small {
+  width: 100%;
+  padding: 6px 12px;
+  background: #43A047;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-download-small:hover {
+  background: #388E3C;
+}
+
+.attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attachment-list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.attachment-list-item:hover {
+  background: #F5F5F5;
+  border-color: #1E88E5;
+}
+
+.attachment-icon {
+  font-size: 2em;
+  flex-shrink: 0;
+}
+
+.attachment-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.attachment-name {
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-description {
+  font-size: 0.9em;
+  color: #616161;
+  margin: 0 0 8px 0;
+}
+
+.attachment-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.attachment-type {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #E8F5E9;
+  color: #2E7D32;
+  border-radius: 8px;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+.attachment-date {
+  font-size: 0.85em;
+  color: #9E9E9E;
+}
+
+.empty-gallery {
+  text-align: center;
+  padding: 40px;
+  color: #616161;
+}
+
+.image-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  cursor: pointer;
+}
+
+.image-preview-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+}
+
+.close-preview {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.5em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #212121;
+}
+
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .gallery-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+

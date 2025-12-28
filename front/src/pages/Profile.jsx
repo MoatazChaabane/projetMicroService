@@ -5,7 +5,7 @@ import { profileAPI } from '../services/api'
 import './Profile.css'
 
 const Profile = () => {
-  const { user, logout, updateUser } = useAuth()
+  const { user, updateUser } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState(null)
@@ -30,10 +30,6 @@ const Profile = () => {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-  }
-
   if (loading) {
     return (
       <div className="profile-container">
@@ -46,9 +42,6 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-header">
         <h1>Mon Profil</h1>
-        <button onClick={handleLogout} className="btn-secondary">
-          Déconnexion
-        </button>
       </div>
 
       <div className="profile-card">

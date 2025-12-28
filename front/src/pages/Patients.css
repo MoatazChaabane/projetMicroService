@@ -22,7 +22,7 @@
 
 .btn-add {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -34,7 +34,7 @@
 
 .btn-add:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4);
 }
 
 .patients-toolbar {

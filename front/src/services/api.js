@@ -35,12 +35,20 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
     
+    // Ne pas rediriger pour les requêtes de vérification d'authentification
+    // (checkAuth dans AuthContext)
+    if (error.config?.url?.includes('/auth/me')) {
+      return Promise.reject(error)
+    }
+    
     if (error.response?.status === 401 || error.response?.status === 403) {
       // Déconnexion automatique en cas d'erreur 401 ou 403
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      // Utiliser navigate au lieu de window.location pour éviter les rechargements
-      if (currentPath !== '/login') {
+      // Mais seulement si ce n'est pas une requête de vérification initiale
+      const token = localStorage.getItem('token')
+      if (token && currentPath !== '/login') {
+        // Nettoyer seulement si on a un token mais qu'il est invalide
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         window.location.href = '/login'
       }
     }

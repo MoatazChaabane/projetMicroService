@@ -10,8 +10,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #F5F7FA;
   min-height: 100vh;
+  color: #212121;
 }
 
 #root {
@@ -26,7 +27,8 @@ body {
 }
 
 .spinner {
-  color: white;
+  color: #1E88E5;
   font-size: 1.2rem;
+  font-weight: 500;
 }
 

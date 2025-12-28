@@ -1,0 +1,163 @@
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.appointment-table thead {
+  background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+  color: white;
+}
+
+.appointment-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.appointment-table tbody tr {
+  border-bottom: 1px solid #ecf0f1;
+  transition: background-color 0.2s;
+}
+
+.appointment-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.appointment-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.appointment-table td {
+  padding: 16px;
+  font-size: 0.95em;
+}
+
+.doctor-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-info strong {
+  color: #2c3e50;
+  font-size: 1em;
+}
+
+.specialite {
+  color: #7f8c8d;
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  transform: scale(1.1);
+}
+
+.btn-confirm:hover {
+  background-color: #E8F5E9;
+}
+
+.btn-cancel:hover {
+  background-color: #FFEBEE;
+}
+
+.btn-complete:hover {
+  background-color: #E3F2FD;
+}
+
+.btn-reschedule:hover {
+  background-color: #FFF3E0;
+}
+
+.btn-no-show:hover {
+  background-color: #F5F5F5;
+}
+
+.btn-edit:hover {
+  background-color: #FFF3E0;
+}
+
+.reschedule-form {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.reschedule-input {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.btn-save-reschedule,
+.btn-cancel-reschedule {
+  background: none;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-save-reschedule:hover {
+  background-color: #E8F5E9;
+}
+
+.btn-cancel-reschedule:hover {
+  background-color: #FFEBEE;
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .appointment-table {
+    min-width: 1000px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .reschedule-form {
+    flex-direction: column;
+  }
+}
+

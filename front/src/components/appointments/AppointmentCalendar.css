@@ -1,0 +1,368 @@
+.calendar-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.calendar-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.calendar-title {
+  flex: 1;
+  text-align: center;
+}
+
+.calendar-title h3 {
+  margin: 0;
+  color: #1565C0;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.view-mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: white;
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-mode-toggle button {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #616161;
+  transition: all 0.2s;
+}
+
+.view-mode-toggle button.active {
+  background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+  color: white;
+}
+
+.view-mode-toggle button:hover:not(.active) {
+  background: #E3F2FD;
+}
+
+.calendar-header h3 {
+  margin: 0;
+  color: #1565C0;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.btn-nav,
+.btn-today {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-nav:hover,
+.btn-today:hover {
+  background: #E3F2FD;
+  border-color: #1E88E5;
+  color: #1565C0;
+}
+
+.btn-today {
+  margin-right: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.calendar-grid.week-view {
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-grid.month-view {
+  grid-template-columns: 1fr;
+}
+
+.calendar-day {
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  background: #FAFAFA;
+}
+
+.calendar-day.today {
+  border-color: #1E88E5;
+  background: #E3F2FD;
+}
+
+.day-header {
+  padding: 12px;
+  border-bottom: 2px solid #E0E0E0;
+  background: white;
+  border-radius: 6px 6px 0 0;
+}
+
+.day-name {
+  font-weight: 600;
+  color: #616161;
+  font-size: 0.9em;
+  margin-bottom: 4px;
+}
+
+.day-number {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #212121;
+}
+
+.calendar-day.today .day-number {
+  color: #1E88E5;
+}
+
+.day-appointments {
+  flex: 1;
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.no-appointments {
+  text-align: center;
+  color: #9E9E9E;
+  font-size: 0.85em;
+  padding: 20px 0;
+  font-style: italic;
+}
+
+.appointment-item {
+  background: white;
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.appointment-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.appointment-time {
+  font-weight: 600;
+  color: #1565C0;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.appointment-info {
+  flex: 1;
+}
+
+.appointment-name {
+  font-weight: 500;
+  color: #212121;
+  font-size: 0.9em;
+  margin-bottom: 2px;
+}
+
+.appointment-motif {
+  color: #616161;
+  font-size: 0.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appointment-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 2px solid #E0E0E0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  color: #616161;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* Vue mois */
+.month-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.month-day-header {
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #1565C0;
+  background: #E3F2FD;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.month-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.month-day {
+  min-height: 120px;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 8px;
+  background: #FAFAFA;
+  display: flex;
+  flex-direction: column;
+}
+
+.month-day.today {
+  border-color: #1E88E5;
+  background: #E3F2FD;
+}
+
+.month-day.other-month {
+  opacity: 0.4;
+  background: #F5F5F5;
+}
+
+.month-day .day-number {
+  font-weight: 700;
+  color: #212121;
+  margin-bottom: 4px;
+  font-size: 1.1em;
+}
+
+.month-day.today .day-number {
+  color: #1E88E5;
+}
+
+.day-appointments-month {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.appointment-item-month {
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.appointment-item-month:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.more-appointments {
+  font-size: 0.7em;
+  color: #616161;
+  text-align: center;
+  padding: 2px;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .calendar-grid.week-view {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .month-days {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .month-header {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-grid.week-view {
+    grid-template-columns: 1fr;
+  }
+  
+  .month-days {
+    grid-template-columns: 1fr;
+  }
+  
+  .month-header {
+    grid-template-columns: 1fr;
+  }
+  
+  .calendar-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .calendar-title h3 {
+    text-align: center;
+  }
+  
+  .calendar-legend {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+

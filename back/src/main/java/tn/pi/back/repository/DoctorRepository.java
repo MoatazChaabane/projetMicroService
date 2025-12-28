@@ -125,5 +125,39 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     
     // Trouver tous les docteurs non supprimés avec pagination
     Page<Doctor> findByDeletedFalse(Pageable pageable);
+    
+    // Recherche de matching : récupérer tous les docteurs dans un rayon avec distance calculée
+    @Query(value = "SELECT d.*, " +
+            "(6371 * acos(cos(radians(:latitude)) * cos(radians(d.latitude)) * " +
+            "cos(radians(d.longitude) - radians(:longitude)) + " +
+            "sin(radians(:latitude)) * sin(radians(d.latitude)))) AS distance " +
+            "FROM doctors d " +
+            "WHERE d.deleted = false " +
+            "AND d.latitude IS NOT NULL AND d.longitude IS NOT NULL " +
+            "HAVING distance <= :rayonKm " +
+            "ORDER BY distance",
+            nativeQuery = true)
+    List<Doctor> findDoctorsWithinRadiusForMatching(
+            @Param("latitude") Double latitude,
+            @Param("longitude") Double longitude,
+            @Param("rayonKm") Double rayonKm);
+    
+    // Recherche de matching avec spécialité : récupérer tous les docteurs dans un rayon avec distance calculée
+    @Query(value = "SELECT d.*, " +
+            "(6371 * acos(cos(radians(:latitude)) * cos(radians(d.latitude)) * " +
+            "cos(radians(d.longitude) - radians(:longitude)) + " +
+            "sin(radians(:latitude)) * sin(radians(d.latitude)))) AS distance " +
+            "FROM doctors d " +
+            "WHERE d.deleted = false " +
+            "AND d.specialite = :specialite " +
+            "AND d.latitude IS NOT NULL AND d.longitude IS NOT NULL " +
+            "HAVING distance <= :rayonKm " +
+            "ORDER BY distance",
+            nativeQuery = true)
+    List<Doctor> findDoctorsBySpecialiteWithinRadiusForMatching(
+            @Param("specialite") String specialite,
+            @Param("latitude") Double latitude,
+            @Param("longitude") Double longitude,
+            @Param("rayonKm") Double rayonKm);
 }
 

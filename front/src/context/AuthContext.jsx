@@ -26,7 +26,18 @@ export const AuthProvider = ({ children }) => {
       const storedUser = localStorage.getItem('user')
       
       if (token) {
-        // Essayer de récupérer l'utilisateur depuis l'API pour valider le token
+        // D'abord, utiliser les données stockées pour un affichage immédiat
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser)
+            setUser(parsedUser)
+            setIsAuthenticated(true)
+          } catch (e) {
+            console.error('Error parsing stored user:', e)
+          }
+        }
+        
+        // Ensuite, essayer de valider le token avec l'API en arrière-plan
         try {
           const response = await authAPI.getCurrentUser()
           setUser(response.data)
@@ -34,23 +45,15 @@ export const AuthProvider = ({ children }) => {
           // Mettre à jour le localStorage avec les données fraîches
           localStorage.setItem('user', JSON.stringify(response.data))
         } catch (error) {
-          // Si le token est invalide, utiliser les données stockées temporairement
-          if (storedUser) {
-            try {
-              setUser(JSON.parse(storedUser))
-              setIsAuthenticated(true)
-            } catch (e) {
-              // Si les données stockées sont invalides, nettoyer
-              setUser(null)
-              setIsAuthenticated(false)
-              localStorage.removeItem('token')
-              localStorage.removeItem('user')
-            }
-          } else {
+          // Si le token est invalide (401/403), nettoyer seulement si on n'a pas de données stockées
+          if (!storedUser) {
             setUser(null)
             setIsAuthenticated(false)
             localStorage.removeItem('token')
+            localStorage.removeItem('user')
           }
+          // Sinon, on garde les données stockées pour permettre la navigation
+          // L'utilisateur sera déconnecté lors de la prochaine action nécessitant l'API
         }
       } else {
         setUser(null)
@@ -59,10 +62,14 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Auth check failed:', error)
-      setUser(null)
-      setIsAuthenticated(false)
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+      // En cas d'erreur, garder les données stockées si elles existent
+      const storedUser = localStorage.getItem('user')
+      if (!storedUser) {
+        setUser(null)
+        setIsAuthenticated(false)
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+      }
     } finally {
       setLoading(false)
     }

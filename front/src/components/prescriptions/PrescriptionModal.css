@@ -1,0 +1,144 @@
+.prescription-modal-content {
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 95vw;
+}
+
+.prescription-form {
+  padding: 24px;
+}
+
+.medications-section {
+  margin: 24px 0;
+  padding: 20px;
+  background: #F5F5F5;
+  border-radius: 8px;
+  border: 1px solid #E0E0E0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #1565C0;
+  font-size: 1.2em;
+}
+
+.btn-add-medication {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-add-medication:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
+}
+
+.medication-row {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 2px solid #E3F2FD;
+}
+
+.medication-row:last-child {
+  margin-bottom: 0;
+}
+
+.medication-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #E0E0E0;
+}
+
+.medication-number {
+  font-weight: 600;
+  color: #1565C0;
+  font-size: 1em;
+}
+
+.btn-remove-medication {
+  padding: 6px 12px;
+  background: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #E53935;
+  border-radius: 6px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-remove-medication:hover {
+  background: #FFCDD2;
+}
+
+.medication-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.medication-fields .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.medication-fields .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9em;
+}
+
+.medication-fields .form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #E0E0E0;
+  border-radius: 6px;
+  font-size: 0.95em;
+  transition: border-color 0.3s;
+}
+
+.medication-fields .form-group input:focus {
+  outline: none;
+  border-color: #1E88E5;
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
+
+.medication-fields .form-group input.error {
+  border-color: #e74c3c;
+}
+
+@media (max-width: 768px) {
+  .medication-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .btn-add-medication {
+    width: 100%;
+  }
+}
+

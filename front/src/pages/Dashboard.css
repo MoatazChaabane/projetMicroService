@@ -1,0 +1,236 @@
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboard-header {
+  margin-bottom: 32px;
+}
+
+.dashboard-header h1 {
+  font-size: 2.2em;
+  color: #1565C0;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.dashboard-subtitle {
+  color: #616161;
+  font-size: 1.1em;
+  margin: 0;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-top: 4px solid;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: inherit;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card-blue {
+  border-top-color: #1E88E5;
+  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%);
+}
+
+.stat-card-green {
+  border-top-color: #43A047;
+  background: linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%);
+}
+
+.stat-card-purple {
+  border-top-color: #7B1FA2;
+  background: linear-gradient(135deg, #F3E5F5 0%, #FFFFFF 100%);
+}
+
+.stat-card-orange {
+  border-top-color: #FB8C00;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFFFFF 100%);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-icon {
+  font-size: 3em;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-content h3 {
+  font-size: 2.2em;
+  font-weight: 700;
+  color: #212121;
+  margin: 0 0 4px 0;
+}
+
+.stat-content p {
+  font-size: 0.95em;
+  color: #616161;
+  margin: 0;
+  font-weight: 500;
+}
+
+.stat-link {
+  color: #1565C0;
+  text-decoration: none;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.stat-link:hover {
+  color: #0D47A1;
+}
+
+.dashboard-actions {
+  margin-bottom: 40px;
+}
+
+.dashboard-actions h2 {
+  font-size: 1.6em;
+  color: #1565C0;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.action-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(30, 136, 229, 0.2);
+  border-color: #1E88E5;
+}
+
+.action-icon {
+  font-size: 3em;
+  margin-bottom: 16px;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.2);
+}
+
+.action-card h3 {
+  font-size: 1.3em;
+  color: #1565C0;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.action-card p {
+  color: #616161;
+  font-size: 0.95em;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.dashboard-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #43A047;
+}
+
+.info-card h3 {
+  font-size: 1.2em;
+  color: #1565C0;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.info-card p {
+  color: #616161;
+  font-size: 0.95em;
+  line-height: 1.7;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header h1 {
+    font-size: 1.6em;
+  }
+  
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-info {
+    grid-template-columns: 1fr;
+  }
+}
+
