@@ -73,8 +73,7 @@ const AttachmentUpload = ({ medicalRecordId, onUploadSuccess }) => {
       }
 
       await medicalRecordAPI.addAttachment(formData)
-      
-      // Reset form
+
       setFile(null)
       setDescription('')
       setAttachmentType('ANALYSE')

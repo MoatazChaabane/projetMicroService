@@ -72,16 +72,14 @@ public class UserService implements UserDetailsService {
     public UserResponseDTO updateProfile(Long userId, UpdateProfileDTO updateDTO, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-        
-        // Vérifier que l'utilisateur modifie son propre profil ou est un admin
+
         User currentUser = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur actuel non trouvé"));
         
         if (!user.getId().equals(currentUser.getId()) && currentUser.getRole() != tn.pi.back.model.Role.ADMIN) {
             throw new UnauthorizedException("Vous n'êtes pas autorisé à modifier ce profil");
         }
-        
-        // Vérifier si l'email est déjà utilisé par un autre utilisateur
+
         if (updateDTO.getEmail() != null && !updateDTO.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(updateDTO.getEmail())) {
                 throw new RuntimeException("Cet email est déjà utilisé");
@@ -109,16 +107,14 @@ public class UserService implements UserDetailsService {
     public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-        
-        // Vérifier que l'utilisateur modifie son propre mot de passe ou est un admin
+
         User currentUser = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur actuel non trouvé"));
         
         if (!user.getId().equals(currentUser.getId()) && currentUser.getRole() != tn.pi.back.model.Role.ADMIN) {
             throw new UnauthorizedException("Vous n'êtes pas autorisé à modifier ce mot de passe");
         }
-        
-        // Vérifier le mot de passe actuel
+
         if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword())) {
             throw new RuntimeException("Le mot de passe actuel est incorrect");
         }
@@ -134,21 +130,18 @@ public class UserService implements UserDetailsService {
     public UserResponseDTO uploadPhoto(Long userId, MultipartFile file, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-        
-        // Vérifier que l'utilisateur modifie son propre profil ou est un admin
+
         User currentUser = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur actuel non trouvé"));
         
         if (!user.getId().equals(currentUser.getId()) && currentUser.getRole() != tn.pi.back.model.Role.ADMIN) {
             throw new UnauthorizedException("Vous n'êtes pas autorisé à modifier ce profil");
         }
-        
-        // Supprimer l'ancienne photo si elle existe
+
         if (user.getPhotoUrl() != null) {
             fileStorageService.deleteFile(user.getPhotoUrl());
         }
-        
-        // Stocker la nouvelle photo
+
         String photoUrl = fileStorageService.storeFile(file, userId.toString());
         user.setPhotoUrl(photoUrl);
         user.setUpdatedAt(LocalDateTime.now());
@@ -161,16 +154,14 @@ public class UserService implements UserDetailsService {
     public UserResponseDTO deletePhoto(Long userId, String currentUserEmail) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-        
-        // Vérifier que l'utilisateur modifie son propre profil ou est un admin
+
         User currentUser = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur actuel non trouvé"));
         
         if (!user.getId().equals(currentUser.getId()) && currentUser.getRole() != tn.pi.back.model.Role.ADMIN) {
             throw new UnauthorizedException("Vous n'êtes pas autorisé à modifier ce profil");
         }
-        
-        // Supprimer la photo si elle existe
+
         if (user.getPhotoUrl() != null) {
             fileStorageService.deleteFile(user.getPhotoUrl());
             user.setPhotoUrl(null);

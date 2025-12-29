@@ -49,15 +49,13 @@ public class PrescriptionService {
     
     @Transactional
     public PrescriptionResponseDTO createPrescription(PrescriptionRequestDTO requestDTO) {
-        // Vérifier que le patient existe
+
         Patient patient = patientRepository.findByIdAndDeletedFalse(requestDTO.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient non trouvé avec l'ID: " + requestDTO.getPatientId()));
-        
-        // Vérifier que le docteur existe
+
         Doctor doctor = doctorRepository.findByIdAndDeletedFalse(requestDTO.getDoctorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Docteur non trouvé avec l'ID: " + requestDTO.getDoctorId()));
-        
-        // Convertir les DTOs de médicaments en entités
+
         List<Medication> medications = requestDTO.getMedications().stream()
                 .map(dto -> Medication.builder()
                         .name(dto.getName())
@@ -67,8 +65,7 @@ public class PrescriptionService {
                         .instructions(dto.getInstructions())
                         .build())
                 .collect(Collectors.toList());
-        
-        // Créer l'ordonnance
+
         Prescription prescription = Prescription.builder()
                 .patient(patient)
                 .doctor(doctor)
@@ -78,12 +75,10 @@ public class PrescriptionService {
                 .build();
         
         Prescription saved = prescriptionRepository.save(prescription);
-        
-        // Générer le PDF
+
         String pdfUrl = generatePDF(saved);
         saved.setPdfUrl(pdfUrl);
-        
-        // Générer la signature numérique
+
         String signatureHash = generateSignature(saved);
         String signatureMetadata = generateSignatureMetadata(saved);
         saved.setSignatureHash(signatureHash);
@@ -128,23 +123,20 @@ public class PrescriptionService {
     
     private String generatePDF(Prescription prescription) {
         try {
-            // Créer le répertoire si nécessaire
+
             Path dir = Paths.get(pdfDirectory);
             if (!Files.exists(dir)) {
                 Files.createDirectories(dir);
             }
-            
-            // Nom du fichier
+
             String fileName = "prescription-" + prescription.getId() + "-" + UUID.randomUUID().toString() + ".pdf";
             String filePath = dir.resolve(fileName).toString();
-            
-            // Créer le document PDF
+
             Document document = new Document(PageSize.A4);
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
             
             document.open();
-            
-            // En-tête
+
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, BaseColor.BLACK);
             Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK);
             Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
@@ -153,8 +145,7 @@ public class PrescriptionService {
             title.setAlignment(Element.ALIGN_CENTER);
             title.setSpacingAfter(20);
             document.add(title);
-            
-            // Informations du docteur
+
             Paragraph doctorInfo = new Paragraph();
             doctorInfo.add(new Chunk("Docteur: ", headerFont));
             doctorInfo.add(new Chunk("Dr. " + prescription.getDoctor().getUser().getFirstName() + " " + 
@@ -167,15 +158,13 @@ public class PrescriptionService {
             doctorInfo.add(new Chunk(prescription.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), normalFont));
             doctorInfo.setSpacingAfter(15);
             document.add(doctorInfo);
-            
-            // Informations du patient
+
             Paragraph patientInfo = new Paragraph();
             patientInfo.add(new Chunk("Patient: ", headerFont));
             patientInfo.add(new Chunk(prescription.getPatient().getPrenom() + " " + prescription.getPatient().getNom(), normalFont));
             patientInfo.setSpacingAfter(15);
             document.add(patientInfo);
-            
-            // Médicaments
+
             Paragraph medTitle = new Paragraph("Médicaments:", headerFont);
             medTitle.setSpacingAfter(10);
             document.add(medTitle);
@@ -183,15 +172,13 @@ public class PrescriptionService {
             PdfPTable table = new PdfPTable(5);
             table.setWidthPercentage(100);
             table.setWidths(new float[]{3, 2, 2, 2, 3});
-            
-            // En-têtes de table
+
             addTableHeader(table, "Médicament", headerFont);
             addTableHeader(table, "Dosage", headerFont);
             addTableHeader(table, "Fréquence", headerFont);
             addTableHeader(table, "Durée", headerFont);
             addTableHeader(table, "Instructions", headerFont);
-            
-            // Lignes de médicaments
+
             for (Medication med : prescription.getMedications()) {
                 addTableCell(table, med.getName(), normalFont);
                 addTableCell(table, med.getDosage(), normalFont);
@@ -201,8 +188,7 @@ public class PrescriptionService {
             }
             
             document.add(table);
-            
-            // Instructions générales
+
             if (prescription.getInstructions() != null && !prescription.getInstructions().trim().isEmpty()) {
                 Paragraph instructionsTitle = new Paragraph("Instructions générales:", headerFont);
                 instructionsTitle.setSpacingBefore(15);
@@ -213,8 +199,7 @@ public class PrescriptionService {
                 instructions.setSpacingAfter(15);
                 document.add(instructions);
             }
-            
-            // Signature
+
             Paragraph signature = new Paragraph();
             signature.add(new Chunk("Signature numérique: ", headerFont));
             signature.add(new Chunk(prescription.getSignatureHash() != null ? prescription.getSignatureHash() : "En attente", normalFont));
@@ -223,8 +208,7 @@ public class PrescriptionService {
             document.add(signature);
             
             document.close();
-            
-            // Retourner l'URL relative
+
             return pdfBaseUrl + "/" + fileName;
             
         } catch (Exception e) {
@@ -249,24 +233,21 @@ public class PrescriptionService {
     
     private String generateSignature(Prescription prescription) {
         try {
-            // Créer une chaîne à signer avec les données importantes
+
             StringBuilder dataToSign = new StringBuilder();
             dataToSign.append("PRESCRIPTION-").append(prescription.getId()).append("-");
             dataToSign.append(prescription.getPatient().getId()).append("-");
             dataToSign.append(prescription.getDoctor().getId()).append("-");
             dataToSign.append(prescription.getDate().toString()).append("-");
             dataToSign.append(prescription.getCreatedAt().toString());
-            
-            // Ajouter les médicaments
+
             for (Medication med : prescription.getMedications()) {
                 dataToSign.append("-").append(med.getName()).append("-").append(med.getDosage());
             }
-            
-            // Générer le hash SHA-256
+
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(dataToSign.toString().getBytes());
-            
-            // Convertir en hexadécimal
+
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
@@ -285,7 +266,7 @@ public class PrescriptionService {
     }
     
     private String generateSignatureMetadata(Prescription prescription) {
-        // Générer les métadonnées de signature en JSON simple
+
         StringBuilder metadata = new StringBuilder();
         metadata.append("{");
         metadata.append("\"prescriptionId\":").append(prescription.getId()).append(",");

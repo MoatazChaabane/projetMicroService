@@ -22,7 +22,7 @@ const Profile = () => {
     } catch (error) {
       console.error('Error fetching profile:', error)
       if (error.response?.status === 403 || error.response?.status === 401) {
-        // Rediriger vers login si non authentifié
+
         navigate('/login')
       }
     } finally {

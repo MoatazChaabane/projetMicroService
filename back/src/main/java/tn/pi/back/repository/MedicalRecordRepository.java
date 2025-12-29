@@ -10,11 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Long> {
-    
-    // Trouver le dossier médical d'un patient
+
     Optional<MedicalRecord> findByPatientId(Long patientId);
-    
-    // Vérifier si un dossier existe pour un patient
+
     boolean existsByPatientId(Long patientId);
 }
 

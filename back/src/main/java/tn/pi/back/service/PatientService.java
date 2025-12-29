@@ -13,6 +13,7 @@ import tn.pi.back.dto.PatientRequestDTO;
 import tn.pi.back.dto.PatientResponseDTO;
 import tn.pi.back.exception.ResourceNotFoundException;
 import tn.pi.back.model.Patient;
+import tn.pi.back.model.Sexe;
 import tn.pi.back.repository.PatientRepository;
 
 import java.util.List;
@@ -57,9 +58,11 @@ public class PatientService {
     
     @Transactional(readOnly = true)
     public PageResponse<PatientResponseDTO> getAllPatients(int page, int size, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("desc") 
-                ? Sort.by(sortBy).descending() 
-                : Sort.by(sortBy).ascending();
+        String validSortBy = validateSortField(sortBy);
+        
+        Sort sort = sortDir != null && sortDir.equalsIgnoreCase("desc") 
+                ? Sort.by(validSortBy).descending() 
+                : Sort.by(validSortBy).ascending();
         
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Patient> patientPage = patientRepository.findByDeletedFalse(pageable);
@@ -67,11 +70,30 @@ public class PatientService {
         return buildPageResponse(patientPage);
     }
     
+    private String validateSortField(String sortBy) {
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            return "id";
+        }
+        
+        String[] validFields = {"id", "nom", "prenom", "dateNaissance", "telephone", "createdAt", "updatedAt"};
+        String normalizedSortBy = sortBy.trim();
+        
+        for (String field : validFields) {
+            if (field.equalsIgnoreCase(normalizedSortBy)) {
+                return field;
+            }
+        }
+        
+        return "id";
+    }
+    
     @Transactional(readOnly = true)
     public PageResponse<PatientResponseDTO> searchPatients(String search, int page, int size, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("desc") 
-                ? Sort.by(sortBy).descending() 
-                : Sort.by(sortBy).ascending();
+        String validSortBy = validateSortField(sortBy);
+        
+        Sort sort = sortDir != null && sortDir.equalsIgnoreCase("desc") 
+                ? Sort.by(validSortBy).descending() 
+                : Sort.by(validSortBy).ascending();
         
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Patient> patientPage;
@@ -123,13 +145,26 @@ public class PatientService {
         return patientRepository.countByDeletedFalse();
     }
     
+    @Transactional(readOnly = true)
+    public PatientResponseDTO getPatientByTelephone(String telephone) {
+        Patient patient = patientRepository.findByTelephoneAndDeletedFalse(telephone)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient non trouvé avec le téléphone: " + telephone));
+        return mapToResponseDTO(patient);
+    }
+    
     private PatientResponseDTO mapToResponseDTO(Patient patient) {
+        Sexe sexe = patient.getSexe();
+        if (sexe == null) {
+            log.warn("Patient {} {} a un sexe null, utilisation de M par défaut", patient.getPrenom(), patient.getNom());
+            sexe = Sexe.M;
+        }
+        
         return PatientResponseDTO.builder()
                 .id(patient.getId())
                 .nom(patient.getNom())
                 .prenom(patient.getPrenom())
                 .dateNaissance(patient.getDateNaissance())
-                .sexe(patient.getSexe())
+                .sexe(sexe)
                 .telephone(patient.getTelephone())
                 .adresse(patient.getAdresse())
                 .allergies(patient.getAllergies())

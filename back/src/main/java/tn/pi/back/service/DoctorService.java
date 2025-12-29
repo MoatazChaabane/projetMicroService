@@ -36,11 +36,10 @@ public class DoctorService {
     
     @Transactional
     public DoctorResponseDTO createDoctor(DoctorRequestDTO requestDTO) {
-        // Vérifier que l'utilisateur existe
+
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé avec l'ID: " + requestDTO.getUserId()));
-        
-        // Vérifier que l'utilisateur n'a pas déjà un profil docteur
+
         if (doctorRepository.findByUserId(requestDTO.getUserId()).isPresent()) {
             throw new RuntimeException("Cet utilisateur a déjà un profil docteur");
         }
@@ -61,8 +60,7 @@ public class DoctorService {
                 .build();
         
         Doctor savedDoctor = doctorRepository.save(doctor);
-        
-        // Créer les créneaux horaires si fournis
+
         if (requestDTO.getHoraires() != null && !requestDTO.getHoraires().isEmpty()) {
             List<TimeSlot> timeSlots = requestDTO.getHoraires().stream()
                     .map(slotDTO -> TimeSlot.builder()
@@ -126,8 +124,7 @@ public class DoctorService {
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Doctor> doctorsPage;
-        
-        // Recherche complète : spécialité + distance + disponibilité
+
         if (searchDTO.getSpecialite() != null 
                 && searchDTO.getLatitude() != null 
                 && searchDTO.getLongitude() != null 
@@ -146,7 +143,7 @@ public class DoctorService {
                     pageable
             );
         }
-        // Recherche : spécialité + distance
+
         else if (searchDTO.getSpecialite() != null 
                 && searchDTO.getLatitude() != null 
                 && searchDTO.getLongitude() != null 
@@ -159,7 +156,7 @@ public class DoctorService {
                     pageable
             );
         }
-        // Recherche : spécialité + téléconsultation
+
         else if (searchDTO.getSpecialite() != null && searchDTO.getTeleconsultation() != null) {
             doctorsPage = doctorRepository.findBySpecialiteAndTeleconsultation(
                     searchDTO.getSpecialite(),
@@ -167,7 +164,7 @@ public class DoctorService {
                     pageable
             );
         }
-        // Recherche : spécialité + rating minimum
+
         else if (searchDTO.getSpecialite() != null && searchDTO.getRatingMin() != null) {
             doctorsPage = doctorRepository.findBySpecialiteAndRatingMin(
                     searchDTO.getSpecialite(),
@@ -175,11 +172,11 @@ public class DoctorService {
                     pageable
             );
         }
-        // Recherche : spécialité seule
+
         else if (searchDTO.getSpecialite() != null) {
             doctorsPage = doctorRepository.findBySpecialite(searchDTO.getSpecialite(), pageable);
         }
-        // Recherche : distance seule
+
         else if (searchDTO.getLatitude() != null 
                 && searchDTO.getLongitude() != null 
                 && searchDTO.getRayonKm() != null) {
@@ -190,7 +187,7 @@ public class DoctorService {
                     pageable
             );
         }
-        // Recherche : disponibilité seule
+
         else if (searchDTO.getDate() != null && searchDTO.getHeure() != null) {
             JourSemaine jour = convertDateToJourSemaine(searchDTO.getDate());
             doctorsPage = doctorRepository.findDoctorsByDisponibilite(
@@ -199,7 +196,7 @@ public class DoctorService {
                     pageable
             );
         }
-        // Par défaut : tous les docteurs
+
         else {
             doctorsPage = doctorRepository.findByDeletedFalse(pageable);
         }
@@ -232,13 +229,11 @@ public class DoctorService {
         doctor.setTarifConsultation(requestDTO.getTarifConsultation());
         doctor.setLangues(requestDTO.getLangues() != null ? requestDTO.getLangues() : List.of());
         doctor.setTeleconsultation(requestDTO.getTeleconsultation() != null ? requestDTO.getTeleconsultation() : false);
-        
-        // Mettre à jour les créneaux horaires
+
         if (requestDTO.getHoraires() != null) {
-            // Supprimer les anciens créneaux
+
             timeSlotRepository.deleteByDoctorId(id);
-            
-            // Créer les nouveaux créneaux
+
             List<TimeSlot> timeSlots = requestDTO.getHoraires().stream()
                     .map(slotDTO -> TimeSlot.builder()
                             .doctor(doctor)
@@ -274,7 +269,7 @@ public class DoctorService {
     
     @Transactional(readOnly = true)
     public List<DoctorMatchResponseDTO> matchDoctors(DoctorMatchRequestDTO matchRequest) {
-        // Récupérer les docteurs dans le rayon
+
         List<Doctor> doctors;
         if (matchRequest.getSpecialite() != null) {
             doctors = doctorRepository.findDoctorsBySpecialiteWithinRadiusForMatching(
@@ -290,13 +285,11 @@ public class DoctorService {
                     matchRequest.getRayonKm()
             );
         }
-        
-        // Analyser les symptômes pour déterminer les spécialités pertinentes
+
         List<Specialite> suggestedSpecialites = matchRequest.getSpecialite() != null
                 ? List.of(matchRequest.getSpecialite())
                 : mapSymptomsToSpecialities(matchRequest.getSymptomes(), matchRequest.getTags());
-        
-        // Calculer les scores pour chaque docteur
+
         List<DoctorMatchResponseDTO> matches = doctors.stream()
                 .map(doctor -> calculateMatchScore(doctor, matchRequest, suggestedSpecialites))
                 .filter(match -> match.getScoreTotal() > 0) // Filtrer les scores nuls
@@ -309,35 +302,30 @@ public class DoctorService {
     }
     
     private DoctorMatchResponseDTO calculateMatchScore(Doctor doctor, DoctorMatchRequestDTO matchRequest, List<Specialite> suggestedSpecialites) {
-        // Calculer la distance
+
         Double distance = calculateDistance(
                 matchRequest.getLatitude(),
                 matchRequest.getLongitude(),
                 doctor.getLatitude(),
                 doctor.getLongitude()
         );
-        
-        // Score symptômes/spécialité (pondération: 40%)
+
         double scoreSymptomes = calculateSymptomScore(doctor.getSpecialite(), suggestedSpecialites);
-        
-        // Score distance (pondération: 30%) - plus proche = score plus élevé
+
         double scoreDistance = calculateDistanceScore(distance, matchRequest.getRayonKm());
-        
-        // Score disponibilité (pondération: 30%)
+
         double scoreDisponibilite = 0.0;
         boolean disponible = false;
         if (matchRequest.getDateSouhaitee() != null) {
             disponible = checkDoctorAvailability(doctor.getId(), matchRequest.getDateSouhaitee());
             scoreDisponibilite = disponible ? 1.0 : 0.0;
         } else {
-            // Si pas de date, on donne un score neutre
+
             scoreDisponibilite = 0.5;
         }
-        
-        // Score total pondéré
+
         double scoreTotal = (scoreSymptomes * 0.4) + (scoreDistance * 0.3) + (scoreDisponibilite * 0.3);
-        
-        // Message explicatif
+
         String message = buildMatchMessage(doctor.getSpecialite(), distance, disponible, scoreSymptomes);
         
         return DoctorMatchResponseDTO.builder()
@@ -359,7 +347,7 @@ public class DoctorService {
         if (suggestedSpecialites.contains(doctorSpecialite)) {
             return 1.0; // Score parfait si correspond exactement
         }
-        // Score partiel si spécialité générale est suggérée
+
         if (suggestedSpecialites.contains(Specialite.MEDECINE_GENERALE) && 
             doctorSpecialite != Specialite.MEDECINE_GENERALE) {
             return 0.7; // Les généralistes peuvent traiter beaucoup de cas
@@ -371,8 +359,8 @@ public class DoctorService {
         if (distanceKm == null || maxRayonKm == null || maxRayonKm <= 0) {
             return 0.5; // Score neutre si pas de distance
         }
-        // Score inverse : plus proche = score plus élevé
-        // Normalisé entre 0 et 1 : score = 1 - (distance / maxRayon)
+
+
         double normalizedDistance = Math.min(distanceKm / maxRayonKm, 1.0);
         return 1.0 - normalizedDistance;
     }
@@ -380,7 +368,7 @@ public class DoctorService {
     private boolean checkDoctorAvailability(Long doctorId, LocalDate date) {
         try {
             JourSemaine jour = convertDateToJourSemaine(date);
-            // Vérifier si le docteur a au moins un créneau disponible ce jour-là
+
             List<TimeSlot> availableSlots = timeSlotRepository.findAvailableSlotsByDoctorAndDay(doctorId, jour);
             return !availableSlots.isEmpty();
         } catch (Exception e) {
@@ -391,23 +379,20 @@ public class DoctorService {
     
     private List<Specialite> mapSymptomsToSpecialities(String symptomes, List<String> tags) {
         List<String> symptomTokens = new ArrayList<>();
-        
-        // Normaliser le texte des symptômes
+
         if (symptomes != null && !symptomes.trim().isEmpty()) {
             String[] words = symptomes.toLowerCase()
                     .replaceAll("[^a-zàâäéèêëïîôùûüÿç\\s]", " ")
                     .split("\\s+");
             symptomTokens.addAll(Arrays.asList(words));
         }
-        
-        // Ajouter les tags
+
         if (tags != null) {
             tags.stream()
                     .map(String::toLowerCase)
                     .forEach(symptomTokens::add);
         }
-        
-        // Map de correspondance symptômes -> spécialités
+
         Map<String, Specialite> symptomMap = new HashMap<>();
         symptomMap.put("cœur", Specialite.CARDIOLOGIE);
         symptomMap.put("cardiaque", Specialite.CARDIOLOGIE);
@@ -455,8 +440,7 @@ public class DoctorService {
         symptomMap.put("rein", Specialite.UROLOGIE);
         
         Set<Specialite> matchedSpecialites = new HashSet<>();
-        
-        // Rechercher les correspondances
+
         for (String token : symptomTokens) {
             for (Map.Entry<String, Specialite> entry : symptomMap.entrySet()) {
                 if (token.contains(entry.getKey()) || entry.getKey().contains(token)) {
@@ -464,8 +448,7 @@ public class DoctorService {
                 }
             }
         }
-        
-        // Si aucune correspondance, suggérer médecine générale
+
         if (matchedSpecialites.isEmpty()) {
             matchedSpecialites.add(Specialite.MEDECINE_GENERALE);
         }
@@ -510,8 +493,7 @@ public class DoctorService {
         }
         return message.toString();
     }
-    
-    // Méthode utilitaire pour convertir une date en jour de la semaine
+
     private JourSemaine convertDateToJourSemaine(LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return switch (dayOfWeek) {

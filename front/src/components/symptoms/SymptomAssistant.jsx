@@ -14,7 +14,7 @@ const SymptomAssistant = ({ onAnalysisComplete, appointmentId, patientId, onClos
   const chatContainerRef = useRef(null)
 
   useEffect(() => {
-    // Message de bienvenue initial
+
     setMessages([
       {
         type: 'assistant',
@@ -46,7 +46,6 @@ const SymptomAssistant = ({ onAnalysisComplete, appointmentId, patientId, onClos
     setLoading(true)
     setError('')
 
-    // Message de chargement
     const loadingMessage = {
       type: 'assistant',
       text: '⏳ Analyse en cours...',
@@ -70,7 +69,6 @@ const SymptomAssistant = ({ onAnalysisComplete, appointmentId, patientId, onClos
       const analysis = response.data
       setAnalysisResult(analysis)
 
-      // Remplacer le message de chargement par la réponse
       setMessages(prev => {
         const newMessages = [...prev]
         const lastIndex = newMessages.length - 1
@@ -85,15 +83,13 @@ const SymptomAssistant = ({ onAnalysisComplete, appointmentId, patientId, onClos
         return newMessages
       })
 
-      // Appeler le callback si fourni
       if (onAnalysisComplete) {
         onAnalysisComplete(analysis)
       }
     } catch (err) {
       console.error('Erreur analyse:', err)
       setError(err.response?.data?.message || 'Erreur lors de l\'analyse des symptômes')
-      
-      // Remplacer le message de chargement par une erreur
+
       setMessages(prev => {
         const newMessages = [...prev]
         const lastIndex = newMessages.length - 1

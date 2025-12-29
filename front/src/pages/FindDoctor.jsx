@@ -29,26 +29,23 @@ const FindDoctor = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [doctors, setDoctors] = useState([])
-  
-  // Form fields
+
   const [symptomes, setSymptomes] = useState('')
   const [specialite, setSpecialite] = useState('')
   const [rayonKm, setRayonKm] = useState(10)
   const [dateSouhaitee, setDateSouhaitee] = useState('')
   const [heureSouhaitee, setHeureSouhaitee] = useState('')
-  
-  // Geolocation
+
   const [latitude, setLatitude] = useState(null)
   const [longitude, setLongitude] = useState(null)
   const [locationError, setLocationError] = useState('')
   const [locationLoading, setLocationLoading] = useState(false)
-  
-  // Modal
+
   const [showAppointmentModal, setShowAppointmentModal] = useState(false)
   const [selectedDoctor, setSelectedDoctor] = useState(null)
   
   useEffect(() => {
-    // Essayer de récupérer la position depuis le localStorage ou demander la géolocalisation
+
     const savedLat = localStorage.getItem('userLatitude')
     const savedLng = localStorage.getItem('userLongitude')
     
@@ -76,7 +73,7 @@ const FindDoctor = () => {
         const lng = position.coords.longitude
         setLatitude(lat)
         setLongitude(lng)
-        // Sauvegarder pour les prochaines fois
+
         localStorage.setItem('userLatitude', lat.toString())
         localStorage.setItem('userLongitude', lng.toString())
         setLocationLoading(false)
@@ -85,7 +82,7 @@ const FindDoctor = () => {
         console.error('Erreur géolocalisation:', err)
         setLocationError('Impossible de récupérer votre position. Veuillez entrer manuellement les coordonnées.')
         setLocationLoading(false)
-        // Coordonnées par défaut (Tunis)
+
         setLatitude(36.8065)
         setLongitude(10.1815)
       }

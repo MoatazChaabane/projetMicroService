@@ -31,14 +31,12 @@ public class FileStorageService {
         if (file.isEmpty()) {
             throw new RuntimeException("Le fichier est vide");
         }
-        
-        // Vérifier le type de fichier
+
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new RuntimeException("Le fichier doit être une image");
         }
-        
-        // Générer un nom de fichier unique
+
         String originalFilename = file.getOriginalFilename();
         String extension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
@@ -49,8 +47,7 @@ public class FileStorageService {
         try {
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            
-            // Retourner l'URL relative
+
             return "/uploads/" + fileName;
         } catch (IOException ex) {
             throw new RuntimeException("Impossible de stocker le fichier", ex);

@@ -9,7 +9,6 @@ const api = axios.create({
   },
 })
 
-// Intercepteur pour ajouter le token JWT dans les requêtes
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -23,30 +22,28 @@ api.interceptors.request.use(
   }
 )
 
-// Intercepteur pour gérer les erreurs
 api.interceptors.response.use(
   (response) => {
     return response
   },
   (error) => {
-    // Ne pas rediriger si on est déjà sur la page de login ou register
+
     const currentPath = window.location.pathname
     if (currentPath === '/login' || currentPath === '/register') {
       return Promise.reject(error)
     }
-    
-    // Ne pas rediriger pour les requêtes de vérification d'authentification
-    // (checkAuth dans AuthContext)
+
+
     if (error.config?.url?.includes('/auth/me')) {
       return Promise.reject(error)
     }
     
     if (error.response?.status === 401 || error.response?.status === 403) {
-      // Déconnexion automatique en cas d'erreur 401 ou 403
-      // Mais seulement si ce n'est pas une requête de vérification initiale
+
+
       const token = localStorage.getItem('token')
       if (token && currentPath !== '/login') {
-        // Nettoyer seulement si on a un token mais qu'il est invalide
+
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         window.location.href = '/login'

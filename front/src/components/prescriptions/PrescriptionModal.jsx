@@ -85,7 +85,7 @@ const PrescriptionModal = ({ mode, prescription, onClose, onSave, defaultPatient
     setError('')
     setLoading(true)
     try {
-      // Filtrer les médicaments vides
+
       const validMedications = data.medications.filter(
         med => med.name.trim() !== '' && med.dosage.trim() !== ''
       )
@@ -144,7 +144,7 @@ const PrescriptionModal = ({ mode, prescription, onClose, onSave, defaultPatient
             </div>
           )}
 
-          {/* Champ caché pour doctorId */}
+          {}
           <input type="hidden" {...register('doctorId')} value={doctorId || ''} />
 
           <div className="form-row">

@@ -41,15 +41,13 @@ public class TimelineItemDTO {
     
     @Schema(description = "ID du docteur")
     private Long doctorId;
-    
-    // Pour les consultations
+
     @Schema(description = "Motif de consultation (si type VISIT)")
     private String reason;
     
     @Schema(description = "Diagnostic (si type VISIT)")
     private String diagnosis;
-    
-    // Pour les pièces jointes
+
     @Schema(description = "Nom du fichier (si type ATTACHMENT)")
     private String fileName;
     

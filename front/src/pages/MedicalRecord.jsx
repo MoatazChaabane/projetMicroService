@@ -15,27 +15,65 @@ const MedicalRecord = () => {
   const { user } = useAuth()
   const [medicalRecord, setMedicalRecord] = useState(null)
   const [patient, setPatient] = useState(null)
+  const [patientId, setPatientId] = useState(null)
   const [timeline, setTimeline] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showVisitModal, setShowVisitModal] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [viewMode, setViewMode] = useState('timeline') // 'timeline' ou 'gallery'
+  const [viewMode, setViewMode] = useState('timeline')
 
-  const patientId = paramPatientId ? Number(paramPatientId) : (user?.role === 'PATIENT' ? user.id : null)
+  useEffect(() => {
+    const determinePatientId = async () => {
+      if (!user) {
+        return
+      }
+      
+      if (paramPatientId) {
+        setPatientId(Number(paramPatientId))
+        setLoading(false)
+      } else if (user?.role === 'PATIENT') {
+        if (user?.phoneNumber) {
+          try {
+            setLoading(true)
+            const response = await patientAPI.getPatientByTelephone(user.phoneNumber)
+            setPatientId(response.data.id)
+            setPatient(response.data)
+          } catch (err) {
+            console.error('Erreur lors de la récupération du patient:', err)
+            setError('Patient non trouvé. Veuillez contacter l\'administrateur.')
+            setLoading(false)
+          }
+        } else {
+          setError('Numéro de téléphone manquant dans votre profil')
+          setLoading(false)
+        }
+      } else if (user?.role === 'DOCTOR' || user?.role === 'ADMIN') {
+        setError('ID patient manquant. Veuillez sélectionner un patient depuis la liste.')
+        setLoading(false)
+      } else {
+        setError('ID patient manquant')
+        setLoading(false)
+      }
+    }
+    
+    determinePatientId()
+  }, [paramPatientId, user])
 
   useEffect(() => {
     if (patientId) {
       fetchMedicalRecord()
-      fetchTimeline()
       if (user?.role !== 'PATIENT') {
         fetchPatient()
       }
-    } else if (!loading) {
-      setLoading(false)
-      setError('ID patient manquant')
     }
   }, [patientId, user])
+  
+  useEffect(() => {
+    if (medicalRecord && patientId) {
+      fetchTimeline()
+    }
+  }, [medicalRecord, patientId, searchTerm])
 
   const fetchMedicalRecord = async () => {
     setLoading(true)
@@ -45,7 +83,6 @@ const MedicalRecord = () => {
       setMedicalRecord(response.data)
     } catch (err) {
       if (err.response?.status === 404) {
-        // Le dossier n'existe pas encore, on peut le créer si c'est un docteur/admin
         if (user?.role === 'DOCTOR' || user?.role === 'ADMIN') {
           try {
             const created = await medicalRecordAPI.createMedicalRecord(patientId)
@@ -113,7 +150,6 @@ const MedicalRecord = () => {
       const link = document.createElement('a')
       link.href = url
       
-      // Récupérer le nom du fichier depuis les headers ou utiliser un nom par défaut
       const contentDisposition = response.headers['content-disposition']
       let filename = 'attachment'
       if (contentDisposition) {

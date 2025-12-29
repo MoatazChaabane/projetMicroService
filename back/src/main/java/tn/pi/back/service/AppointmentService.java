@@ -35,21 +35,18 @@ public class AppointmentService {
     
     @Transactional
     public AppointmentResponseDTO createAppointment(AppointmentRequestDTO requestDTO) {
-        // Vérifier que le docteur existe
+
         Doctor doctor = doctorRepository.findByIdAndDeletedFalse(requestDTO.getDoctorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Docteur non trouvé avec l'ID: " + requestDTO.getDoctorId()));
-        
-        // Vérifier que le patient existe
+
         Patient patient = patientRepository.findByIdAndDeletedFalse(requestDTO.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient non trouvé avec l'ID: " + requestDTO.getPatientId()));
-        
-        // Vérifier la disponibilité avant création
+
         AppointmentAvailabilityDTO availability = checkAvailability(requestDTO.getDoctorId(), requestDTO.getDate(), requestDTO.getHeure());
         if (!availability.getAvailable()) {
             throw new RuntimeException(availability.getMessage());
         }
-        
-        // Vérifier qu'il n'y a pas de conflit (pas 2 RDV même docteur même slot)
+
         List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(
             requestDTO.getDoctorId(),
             requestDTO.getDate(),
@@ -59,8 +56,7 @@ public class AppointmentService {
         if (!conflicts.isEmpty()) {
             throw new RuntimeException("Un rendez-vous existe déjà pour ce docteur à cette date et heure");
         }
-        
-        // Créer le rendez-vous
+
         Appointment appointment = Appointment.builder()
                 .doctor(doctor)
                 .patient(patient)
@@ -128,7 +124,7 @@ public class AppointmentService {
     
     @Transactional(readOnly = true)
     public List<AppointmentResponseDTO> getDoctorAppointmentsByWeek(Long doctorId, LocalDate weekStart) {
-        // Calculer le début et la fin de la semaine (lundi à dimanche)
+
         LocalDate startDate = weekStart.with(DayOfWeek.MONDAY);
         LocalDate endDate = startDate.plusDays(6);
         
@@ -140,13 +136,12 @@ public class AppointmentService {
     
     @Transactional(readOnly = true)
     public AppointmentAvailabilityDTO checkAvailability(Long doctorId, LocalDate date, LocalTime heure) {
-        // Vérifier que le docteur existe
+
         Doctor doctor = doctorRepository.findByIdAndDeletedFalse(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Docteur non trouvé avec l'ID: " + doctorId));
-        
-        // Vérifier si le docteur a un créneau horaire pour ce jour et cette heure
+
         DayOfWeek dayOfWeek = date.getDayOfWeek();
-        // Convertir DayOfWeek (MONDAY, TUESDAY, etc.) vers JourSemaine (LUNDI, MARDI, etc.)
+
         JourSemaine jour;
         if (dayOfWeek == DayOfWeek.MONDAY) {
             jour = JourSemaine.LUNDI;
@@ -175,8 +170,7 @@ public class AppointmentService {
                     .message("Le docteur n'a pas de créneau disponible pour ce jour et cette heure")
                     .build();
         }
-        
-        // Vérifier s'il y a déjà un RDV confirmé ou en attente
+
         boolean hasConflict = appointmentRepository.existsByDoctorIdAndDateAndHeureAndActiveStatus(doctorId, date, heure);
         
         if (hasConflict) {
@@ -237,18 +231,15 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .filter(a -> !a.getDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Rendez-vous non trouvé avec l'ID: " + id));
-        
-        // Vérifier la disponibilité pour la nouvelle date/heure
+
         checkAvailability(appointment.getDoctor().getId(), newDate, newHeure);
-        
-        // Vérifier qu'il n'y a pas de conflit
+
         List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(
             appointment.getDoctor().getId(),
             newDate,
             newHeure
         );
-        
-        // Exclure le RDV actuel des conflits
+
         conflicts = conflicts.stream()
                 .filter(c -> !c.getId().equals(id))
                 .collect(Collectors.toList());
@@ -259,7 +250,7 @@ public class AppointmentService {
         
         appointment.setDate(newDate);
         appointment.setHeure(newHeure);
-        // Remettre en PENDING si c'était confirmé
+
         if (appointment.getStatus() == AppointmentStatus.CONFIRMED) {
             appointment.setStatus(AppointmentStatus.PENDING);
         }
@@ -276,13 +267,11 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .filter(a -> !a.getDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Rendez-vous non trouvé avec l'ID: " + id));
-        
-        // Si la date ou l'heure change, vérifier la disponibilité
+
         if (!appointment.getDate().equals(requestDTO.getDate()) || 
             !appointment.getHeure().equals(requestDTO.getHeure())) {
             checkAvailability(requestDTO.getDoctorId(), requestDTO.getDate(), requestDTO.getHeure());
-            
-            // Vérifier les conflits (exclure le RDV actuel)
+
             List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(
                 requestDTO.getDoctorId(),
                 requestDTO.getDate(),
@@ -297,8 +286,7 @@ public class AppointmentService {
                 throw new RuntimeException("Un rendez-vous existe déjà pour ce docteur à cette date et heure");
             }
         }
-        
-        // Mettre à jour les champs
+
         if (requestDTO.getDoctorId() != null && !requestDTO.getDoctorId().equals(appointment.getDoctor().getId())) {
             Doctor doctor = doctorRepository.findByIdAndDeletedFalse(requestDTO.getDoctorId())
                     .orElseThrow(() -> new ResourceNotFoundException("Docteur non trouvé avec l'ID: " + requestDTO.getDoctorId()));

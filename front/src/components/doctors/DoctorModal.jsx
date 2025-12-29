@@ -98,7 +98,7 @@ const DoctorModal = ({ mode, doctor, onClose, onSave }) => {
     setError('')
     setLoading(true)
     try {
-      // Convertir les langues de string à array
+
       let languesArray = []
       if (data.langues) {
         if (typeof data.langues === 'string') {

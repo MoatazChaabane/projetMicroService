@@ -17,19 +17,16 @@ const MyAppointments = () => {
   const [calendarView, setCalendarView] = useState('week') // 'week' ou 'month'
   const [doctorId, setDoctorId] = useState(null)
   const [patientId, setPatientId] = useState(null)
-  
-  // Pagination
+
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
-  
-  // Modals
+
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState(null)
-  
-  // Filtres
+
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [dateFilter, setDateFilter] = useState('') // 'upcoming', 'past', 'all'
 
@@ -84,8 +81,7 @@ const MyAppointments = () => {
       }
       
       let appointmentsData = response.data || []
-      
-      // Filtrer par date
+
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       
@@ -102,20 +98,17 @@ const MyAppointments = () => {
           return aptDate < today
         })
       }
-      
-      // Filtrer par statut
+
       if (statusFilter !== 'ALL') {
         appointmentsData = appointmentsData.filter(apt => apt.status === statusFilter)
       }
-      
-      // Trier par date et heure
+
       appointmentsData.sort((a, b) => {
         const dateA = new Date(`${a.date}T${a.heure}`)
         const dateB = new Date(`${b.date}T${b.heure}`)
         return dateB - dateA
       })
-      
-      // Pagination côté client
+
       const startIndex = currentPage * pageSize
       const endIndex = startIndex + pageSize
       const paginatedData = appointmentsData.slice(startIndex, endIndex)

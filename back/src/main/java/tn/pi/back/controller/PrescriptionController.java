@@ -60,10 +60,12 @@ public class PrescriptionController {
             @Parameter(description = "ID du patient", example = "1")
             @PathVariable Long patientId,
             @Parameter(description = "Numéro de page (0-indexé)", example = "0")
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
             @Parameter(description = "Taille de la page", example = "10")
-            @RequestParam(defaultValue = "10") int size) {
-        PageResponse<PrescriptionResponseDTO> prescriptions = prescriptionService.getPatientPrescriptions(patientId, page, size);
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        int pageNum = (page != null) ? page : 0;
+        int sizeNum = (size != null) ? size : 10;
+        PageResponse<PrescriptionResponseDTO> prescriptions = prescriptionService.getPatientPrescriptions(patientId, pageNum, sizeNum);
         return ResponseEntity.ok(prescriptions);
     }
     
@@ -78,10 +80,12 @@ public class PrescriptionController {
             @Parameter(description = "ID du docteur", example = "1")
             @PathVariable Long doctorId,
             @Parameter(description = "Numéro de page (0-indexé)", example = "0")
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
             @Parameter(description = "Taille de la page", example = "10")
-            @RequestParam(defaultValue = "10") int size) {
-        PageResponse<PrescriptionResponseDTO> prescriptions = prescriptionService.getDoctorPrescriptions(doctorId, page, size);
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        int pageNum = (page != null) ? page : 0;
+        int sizeNum = (size != null) ? size : 10;
+        PageResponse<PrescriptionResponseDTO> prescriptions = prescriptionService.getDoctorPrescriptions(doctorId, pageNum, sizeNum);
         return ResponseEntity.ok(prescriptions);
     }
     

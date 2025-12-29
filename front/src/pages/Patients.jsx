@@ -14,19 +14,16 @@ const Patients = () => {
   const [patients, setPatients] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  
-  // Pagination
+
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
   const [sortBy, setSortBy] = useState('id')
   const [sortDir, setSortDir] = useState('asc')
-  
-  // Recherche
+
   const [searchTerm, setSearchTerm] = useState('')
-  
-  // Modals
+
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)

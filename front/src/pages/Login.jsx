@@ -16,7 +16,6 @@ const Login = () => {
     formState: { errors },
   } = useForm()
 
-  // Rediriger si déjà authentifié (au chargement de la page)
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       navigate('/profile', { replace: true })
@@ -29,9 +28,9 @@ const Login = () => {
     try {
       const result = await login(data.email, data.password)
       if (result.success) {
-        // Attendre un peu plus pour que l'état soit bien propagé dans React
+
         await new Promise(resolve => setTimeout(resolve, 150))
-        // Rediriger vers le profil
+
         navigate('/profile', { replace: true })
       } else {
         setError(result.error || 'Erreur de connexion')

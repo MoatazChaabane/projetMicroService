@@ -25,23 +25,19 @@ public class SymptomAnalysisService {
     private final SymptomAnalysisRepository symptomAnalysisRepository;
     private final PatientRepository patientRepository;
     private final AppointmentRepository appointmentRepository;
-    
-    // Mapping des mots-clés vers les symptômes structurés
+
     private static final Map<String, String> SYMPTOM_KEYWORDS = createSymptomKeywords();
-    
-    // Red flags (symptômes nécessitant une attention urgente)
+
     private static final Map<String, String> RED_FLAG_KEYWORDS = createRedFlagKeywords();
-    
-    // Mapping symptômes -> spécialités
+
     private static final Map<String, Specialite> SYMPTOM_TO_SPECIALTY = createSymptomToSpecialtyMap();
     
     @Transactional
     public SymptomAnalysisResponseDTO analyzeSymptoms(SymptomAnalysisRequestDTO request) {
-        // Vérifier que le patient existe
+
         Patient patient = patientRepository.findByIdAndDeletedFalse(request.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient non trouvé avec l'ID: " + request.getPatientId()));
-        
-        // Vérifier le rendez-vous si fourni
+
         Appointment appointment = null;
         if (request.getAppointmentId() != null) {
             appointment = appointmentRepository.findById(request.getAppointmentId())
@@ -50,35 +46,26 @@ public class SymptomAnalysisService {
         }
         
         String description = request.getDescription().toLowerCase();
-        
-        // Extraire les symptômes
+
         List<String> symptoms = extractSymptoms(description);
-        
-        // Détecter les red flags
+
         List<String> redFlags = detectRedFlags(description);
-        
-        // Extraire la sévérité (1-10)
+
         Integer severity = extractSeverity(description);
-        
-        // Extraire la durée
+
         Integer duration = extractDuration(description);
-        
-        // Suggérer des spécialités
+
         List<Specialite> suggestedSpecialties = suggestSpecialties(symptoms, description);
-        
-        // Générer des questions de clarification
+
         List<String> questions = generateQuestions(symptoms, severity, duration, redFlags);
-        
-        // Générer le résumé pour le docteur
+
         String summary = generateSummary(symptoms, severity, duration, redFlags, suggestedSpecialties);
-        
-        // Déterminer si c'est urgent
+
         boolean urgent = !redFlags.isEmpty() || (severity != null && severity >= 8);
         String recommendationMessage = generateRecommendationMessage(urgent, redFlags);
         String safetyWarning = "⚠️ IMPORTANT: Cette analyse n'est pas un diagnostic médical. " +
                                "Consultez toujours un professionnel de santé pour un diagnostic précis.";
-        
-        // Sauvegarder l'analyse
+
         SymptomAnalysis analysis = SymptomAnalysis.builder()
                 .patient(patient)
                 .appointment(appointment)
@@ -161,20 +148,20 @@ public class SymptomAnalysisService {
     }
     
     private Integer extractSeverity(String description) {
-        // Rechercher des mentions de sévérité (1-10, léger, modéré, sévère, etc.)
+
         Pattern severityPattern = Pattern.compile("\\b([0-9]|10)\\s*/(10|10)|sévère|grave|très (douloureux|fort)|intense");
         if (severityPattern.matcher(description).find()) {
-            // Extraire un nombre si présent
+
             Pattern numberPattern = Pattern.compile("\\b([0-9]|10)\\b");
             java.util.regex.Matcher matcher = numberPattern.matcher(description);
             if (matcher.find()) {
                 try {
                     return Integer.parseInt(matcher.group(1));
                 } catch (NumberFormatException e) {
-                    // Ignore
+
                 }
             }
-            // Sinon, estimer selon les mots-clés
+
             if (description.contains("sévère") || description.contains("grave") || description.contains("intense")) {
                 return 8;
             } else if (description.contains("modéré") || description.contains("moyen")) {
@@ -187,14 +174,14 @@ public class SymptomAnalysisService {
     }
     
     private Integer extractDuration(String description) {
-        // Rechercher des mentions de durée (jours, semaines, mois)
+
         Pattern dayPattern = Pattern.compile("\\b(\\d+)\\s*(jour|jours)\\b");
         java.util.regex.Matcher dayMatcher = dayPattern.matcher(description);
         if (dayMatcher.find()) {
             try {
                 return Integer.parseInt(dayMatcher.group(1));
             } catch (NumberFormatException e) {
-                // Ignore
+
             }
         }
         
@@ -204,7 +191,7 @@ public class SymptomAnalysisService {
             try {
                 return Integer.parseInt(weekMatcher.group(1)) * 7;
             } catch (NumberFormatException e) {
-                // Ignore
+
             }
         }
         
@@ -222,8 +209,7 @@ public class SymptomAnalysisService {
                 }
             }
         }
-        
-        // Si aucune spécialité trouvée, suggérer médecine générale
+
         if (specialties.isEmpty()) {
             specialties.add(Specialite.MEDECINE_GENERALE);
         }
@@ -250,8 +236,7 @@ public class SymptomAnalysisService {
             questions.add("Les symptômes s'aggravent-ils rapidement ?");
             questions.add("Avez-vous d'autres symptômes associés (fièvre, nausées, vertiges) ?");
         }
-        
-        // Questions spécifiques selon les symptômes
+
         if (symptoms.stream().anyMatch(s -> s.contains("douleur thoracique") || s.contains("cœur"))) {
             questions.add("La douleur irradie-t-elle vers le bras gauche, la mâchoire ou le dos ?");
             questions.add("Avez-vous des antécédents cardiaques ?");
@@ -340,8 +325,7 @@ public class SymptomAnalysisService {
                 .safetyWarning(safetyWarning)
                 .build();
     }
-    
-    // Méthodes de création des maps statiques
+
     private static Map<String, String> createSymptomKeywords() {
         Map<String, String> map = new HashMap<>();
         map.put("douleur thoracique", "douleur thoracique");

@@ -71,11 +71,16 @@ public class PatientController {
     })
     @GetMapping
     public ResponseEntity<PageResponse<PatientResponseDTO>> getAllPatients(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
-        PageResponse<PatientResponseDTO> patients = patientService.getAllPatients(page, size, sortBy, sortDir);
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+        int pageNum = (page != null) ? page : 0;
+        int sizeNum = (size != null) ? size : 10;
+        String sortByField = (sortBy != null && !sortBy.trim().isEmpty()) ? sortBy : "id";
+        String sortDirection = (sortDir != null && !sortDir.trim().isEmpty()) ? sortDir : "asc";
+        
+        PageResponse<PatientResponseDTO> patients = patientService.getAllPatients(pageNum, sizeNum, sortByField, sortDirection);
         return ResponseEntity.ok(patients);
     }
     
@@ -89,11 +94,16 @@ public class PatientController {
     @GetMapping("/search")
     public ResponseEntity<PageResponse<PatientResponseDTO>> searchPatients(
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
-        PageResponse<PatientResponseDTO> patients = patientService.searchPatients(search, page, size, sortBy, sortDir);
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+        int pageNum = (page != null) ? page : 0;
+        int sizeNum = (size != null) ? size : 10;
+        String sortByField = (sortBy != null && !sortBy.trim().isEmpty()) ? sortBy : "id";
+        String sortDirection = (sortDir != null && !sortDir.trim().isEmpty()) ? sortDir : "asc";
+        
+        PageResponse<PatientResponseDTO> patients = patientService.searchPatients(search, pageNum, sizeNum, sortByField, sortDirection);
         return ResponseEntity.ok(patients);
     }
     
@@ -146,6 +156,21 @@ public class PatientController {
         Map<String, Long> response = new HashMap<>();
         response.put("count", count);
         return ResponseEntity.ok(response);
+    }
+    
+    @Operation(
+            summary = "Récupérer un patient par téléphone",
+            description = "Récupère un patient par son numéro de téléphone (utile pour lier avec User)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Patient trouvé",
+                    content = @Content(schema = @Schema(implementation = PatientResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Patient non trouvé")
+    })
+    @GetMapping("/by-phone/{telephone}")
+    public ResponseEntity<PatientResponseDTO> getPatientByTelephone(@PathVariable String telephone) {
+        PatientResponseDTO patient = patientService.getPatientByTelephone(telephone);
+        return ResponseEntity.ok(patient);
     }
 }
 

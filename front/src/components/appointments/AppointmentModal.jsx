@@ -116,8 +116,7 @@ const AppointmentModal = ({ mode, appointment, onClose, onSave, defaultDoctorId,
     setLoading(true)
     try {
       let appointmentData = { ...data }
-      
-      // Si une analyse de symptômes existe, on peut l'inclure dans les notes
+
       if (symptomAnalysis && symptomAnalysis.summary) {
         appointmentData.notes = appointmentData.notes 
           ? `${appointmentData.notes}\n\n--- Résumé Symptômes ---\n${symptomAnalysis.summary}`

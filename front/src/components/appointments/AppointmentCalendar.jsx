@@ -61,8 +61,7 @@ const AppointmentCalendar = ({ appointments, onEdit, onStatusChange, userRole, d
     const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1 // Lundi = 0
     
     const days = []
-    
-    // Jours du mois précédent
+
     const prevMonth = new Date(year, month - 1, 0)
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       days.push({
@@ -70,16 +69,14 @@ const AppointmentCalendar = ({ appointments, onEdit, onStatusChange, userRole, d
         isCurrentMonth: false
       })
     }
-    
-    // Jours du mois actuel
+
     for (let i = 1; i <= daysInMonth; i++) {
       days.push({
         date: new Date(year, month, i),
         isCurrentMonth: true
       })
     }
-    
-    // Jours du mois suivant pour compléter la grille
+
     const remainingDays = 42 - days.length // 6 semaines * 7 jours
     for (let i = 1; i <= remainingDays; i++) {
       days.push({

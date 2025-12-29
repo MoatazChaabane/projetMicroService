@@ -48,23 +48,30 @@ const Prescriptions = () => {
       let response
       
       if (user?.role === 'ADMIN') {
-        // Admin voit toutes les ordonnances
+
         response = await prescriptionAPI.getAllPrescriptions()
         setPrescriptions(response.data || [])
         setTotalPages(1)
         setTotalElements(response.data?.length || 0)
       } else if (user?.role === 'DOCTOR' && doctorId) {
-        // Docteur voit ses propres ordonnances
+
         response = await prescriptionAPI.getDoctorPrescriptions(doctorId, currentPage, pageSize)
         setPrescriptions(response.data.content || [])
         setTotalPages(response.data.totalPages || 0)
         setTotalElements(response.data.totalElements || 0)
       } else if (user?.role === 'PATIENT') {
-        // Patient voit ses propres ordonnances
+
+
+
+
         response = await prescriptionAPI.getPatientPrescriptions(user.id, currentPage, pageSize)
-        setPrescriptions(response.data.content || [])
-        setTotalPages(response.data.totalPages || 0)
-        setTotalElements(response.data.totalElements || 0)
+        setPrescriptions(response.data?.content || response.data || [])
+        setTotalPages(response.data?.totalPages || 1)
+        setTotalElements(response.data?.totalElements || (Array.isArray(response.data) ? response.data.length : 0))
+      } else {
+        setPrescriptions([])
+        setTotalPages(0)
+        setTotalElements(0)
       }
     } catch (err) {
       console.error('Erreur lors de la récupération des ordonnances:', err)
@@ -81,8 +88,7 @@ const Prescriptions = () => {
 
   const handleDownloadPDF = async (pdfUrl) => {
     try {
-      const response = await prescriptionAPI.downloadPDF(pdfUrl)
-      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const blob = await prescriptionAPI.downloadPDF(pdfUrl)
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -93,7 +99,7 @@ const Prescriptions = () => {
       window.URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Erreur lors du téléchargement du PDF:', err)
-      alert('Erreur lors du téléchargement du PDF')
+      alert('Erreur lors du téléchargement du PDF: ' + (err.message || 'Erreur inconnue'))
     }
   }
 

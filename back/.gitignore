@@ -34,3 +34,8 @@ build/
 
 ### Uploads ###
 uploads/
+
+### Documentation and scripts ###
+*.md
+*.sql
+*.cmd

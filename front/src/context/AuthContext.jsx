@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       const storedUser = localStorage.getItem('user')
       
       if (token) {
-        // D'abord, utiliser les données stockées pour un affichage immédiat
+
         if (storedUser) {
           try {
             const parsedUser = JSON.parse(storedUser)
@@ -36,24 +36,23 @@ export const AuthProvider = ({ children }) => {
             console.error('Error parsing stored user:', e)
           }
         }
-        
-        // Ensuite, essayer de valider le token avec l'API en arrière-plan
+
         try {
           const response = await authAPI.getCurrentUser()
           setUser(response.data)
           setIsAuthenticated(true)
-          // Mettre à jour le localStorage avec les données fraîches
+
           localStorage.setItem('user', JSON.stringify(response.data))
         } catch (error) {
-          // Si le token est invalide (401/403), nettoyer seulement si on n'a pas de données stockées
+
           if (!storedUser) {
             setUser(null)
             setIsAuthenticated(false)
             localStorage.removeItem('token')
             localStorage.removeItem('user')
           }
-          // Sinon, on garde les données stockées pour permettre la navigation
-          // L'utilisateur sera déconnecté lors de la prochaine action nécessitant l'API
+
+
         }
       } else {
         setUser(null)
@@ -62,7 +61,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Auth check failed:', error)
-      // En cas d'erreur, garder les données stockées si elles existent
+
       const storedUser = localStorage.getItem('user')
       if (!storedUser) {
         setUser(null)
@@ -78,21 +77,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await authAPI.login({ email, password })
-      
-      // Si la réponse contient un token et un utilisateur
+
       if (response.data && response.data.token && response.data.user) {
-        // Stocker le token dans localStorage
+
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
-        
-        // Mettre à jour l'état immédiatement
+
         setUser(response.data.user)
         setIsAuthenticated(true)
         
         return { success: true, data: response.data }
       }
-      
-      // Si pas de token, quelque chose ne va pas
+
       return {
         success: false,
         error: 'Connexion réussie mais aucun token reçu',

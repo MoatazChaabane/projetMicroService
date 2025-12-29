@@ -3,9 +3,6 @@ package tn.pi.back.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,8 +23,9 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -56,11 +54,10 @@ public class MedicalRecordService {
     
     @Transactional
     public MedicalRecordResponseDTO createMedicalRecord(Long patientId) {
-        // Vérifier que le patient existe
+
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient non trouvé avec l'ID: " + patientId));
-        
-        // Vérifier qu'un dossier n'existe pas déjà
+
         if (medicalRecordRepository.existsByPatientId(patientId)) {
             throw new RuntimeException("Un dossier médical existe déjà pour ce patient");
         }
@@ -120,20 +117,17 @@ public class MedicalRecordService {
             doctor = doctorRepository.findById(requestDTO.getDoctorId())
                     .orElseThrow(() -> new ResourceNotFoundException("Docteur non trouvé avec l'ID: " + requestDTO.getDoctorId()));
         }
-        
-        // Créer le répertoire si nécessaire
+
         Path dir = Paths.get(attachmentsDirectory);
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
-        
-        // Générer un nom de fichier unique
+
         String originalFilename = file.getOriginalFilename();
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
         String uniqueFilename = System.currentTimeMillis() + "_" + UUID.randomUUID().toString() + fileExtension;
         Path filePath = dir.resolve(uniqueFilename);
-        
-        // Sauvegarder le fichier
+
         Files.copy(file.getInputStream(), filePath);
         
         MedicalAttachment attachment = MedicalAttachment.builder()
@@ -159,8 +153,7 @@ public class MedicalRecordService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dossier médical non trouvé pour le patient ID: " + patientId));
         
         List<TimelineItemDTO> timeline = new ArrayList<>();
-        
-        // Ajouter les consultations
+
         List<Visit> visits = visitRepository.findByMedicalRecordIdOrderByVisitDateDescVisitTimeDesc(record.getId());
         for (Visit visit : visits) {
             timeline.add(TimelineItemDTO.builder()
@@ -176,8 +169,7 @@ public class MedicalRecordService {
                     .diagnosis(visit.getDiagnosis())
                     .build());
         }
-        
-        // Ajouter les pièces jointes
+
         List<MedicalAttachment> attachments = attachmentRepository.findByMedicalRecordIdOrderByCreatedAtDesc(record.getId());
         for (MedicalAttachment attachment : attachments) {
             String doctorName = attachment.getDoctor() != null 
@@ -196,8 +188,7 @@ public class MedicalRecordService {
                     .description(attachment.getDescription())
                     .build());
         }
-        
-        // Trier par date décroissante
+
         timeline.sort((a, b) -> b.getDateTime().compareTo(a.getDateTime()));
         
         return timeline;
@@ -213,8 +204,7 @@ public class MedicalRecordService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dossier médical non trouvé pour le patient ID: " + patientId));
         
         List<TimelineItemDTO> timeline = new ArrayList<>();
-        
-        // Rechercher dans les consultations
+
         List<Visit> visits = visitRepository.searchInVisits(patientId, searchTerm.trim());
         for (Visit visit : visits) {
             timeline.add(TimelineItemDTO.builder()
@@ -230,8 +220,7 @@ public class MedicalRecordService {
                     .diagnosis(visit.getDiagnosis())
                     .build());
         }
-        
-        // Rechercher dans les pièces jointes
+
         List<MedicalAttachment> attachments = attachmentRepository.searchInAttachments(patientId, searchTerm.trim());
         for (MedicalAttachment attachment : attachments) {
             String doctorName = attachment.getDoctor() != null 
@@ -250,8 +239,7 @@ public class MedicalRecordService {
                     .description(attachment.getDescription())
                     .build());
         }
-        
-        // Trier par date décroissante
+
         timeline.sort((a, b) -> b.getDateTime().compareTo(a.getDateTime()));
         
         return timeline;
@@ -288,27 +276,23 @@ public class MedicalRecordService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dossier médical non trouvé pour le patient ID: " + patientId));
         
         Patient patient = record.getPatient();
-        
-        // Créer le document PDF
+
         Document document = new Document(PageSize.A4);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, baos);
         
         document.open();
-        
-        // Fonts
+
         Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, BaseColor.BLACK);
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK);
         Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
         Font smallFont = FontFactory.getFont(FontFactory.HELVETICA, 8, BaseColor.GRAY);
-        
-        // En-tête
+
         Paragraph title = new Paragraph("DOSSIER MÉDICAL", titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(20);
         document.add(title);
-        
-        // Informations patient
+
         Paragraph patientInfo = new Paragraph();
         patientInfo.add(new Chunk("Patient: ", headerFont));
         patientInfo.add(new Chunk(patient.getPrenom() + " " + patient.getNom(), normalFont));
@@ -320,8 +304,7 @@ public class MedicalRecordService {
         patientInfo.add(new Chunk(patient.getSexe().name(), normalFont));
         patientInfo.setSpacingAfter(15);
         document.add(patientInfo);
-        
-        // Timeline - Consultations
+
         List<Visit> visits = visitRepository.findByMedicalRecordIdOrderByVisitDateDescVisitTimeDesc(record.getId());
         if (!visits.isEmpty()) {
             Paragraph visitsTitle = new Paragraph("Consultations", headerFont);
@@ -330,7 +313,7 @@ public class MedicalRecordService {
             document.add(visitsTitle);
             
             for (Visit visit : visits) {
-                // Date et docteur
+
                 Paragraph visitHeader = new Paragraph();
                 visitHeader.add(new Chunk("Date: ", headerFont));
                 visitHeader.add(new Chunk(visit.getVisitDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), normalFont));
@@ -342,36 +325,31 @@ public class MedicalRecordService {
                 visitHeader.add(new Chunk("Dr. " + visit.getDoctor().getUser().getFirstName() + " " + visit.getDoctor().getUser().getLastName(), normalFont));
                 visitHeader.setSpacingAfter(5);
                 document.add(visitHeader);
-                
-                // Motif
+
                 if (visit.getReason() != null && !visit.getReason().trim().isEmpty()) {
                     Paragraph reason = new Paragraph("Motif: " + visit.getReason(), normalFont);
                     reason.setSpacingAfter(3);
                     document.add(reason);
                 }
-                
-                // Symptômes
+
                 if (visit.getSymptoms() != null && !visit.getSymptoms().trim().isEmpty()) {
                     Paragraph symptoms = new Paragraph("Symptômes: " + visit.getSymptoms(), normalFont);
                     symptoms.setSpacingAfter(3);
                     document.add(symptoms);
                 }
-                
-                // Diagnostic
+
                 if (visit.getDiagnosis() != null && !visit.getDiagnosis().trim().isEmpty()) {
                     Paragraph diagnosis = new Paragraph("Diagnostic: " + visit.getDiagnosis(), normalFont);
                     diagnosis.setSpacingAfter(3);
                     document.add(diagnosis);
                 }
-                
-                // Traitement
+
                 if (visit.getTreatment() != null && !visit.getTreatment().trim().isEmpty()) {
                     Paragraph treatment = new Paragraph("Traitement: " + visit.getTreatment(), normalFont);
                     treatment.setSpacingAfter(3);
                     document.add(treatment);
                 }
-                
-                // Notes
+
                 if (visit.getNotes() != null && !visit.getNotes().trim().isEmpty()) {
                     Paragraph notes = new Paragraph("Notes: " + visit.getNotes(), normalFont);
                     notes.setSpacingAfter(10);
@@ -382,8 +360,7 @@ public class MedicalRecordService {
                 document.add(new Paragraph(" "));
             }
         }
-        
-        // Pièces jointes
+
         List<MedicalAttachment> attachments = attachmentRepository.findByMedicalRecordIdOrderByCreatedAtDesc(record.getId());
         if (!attachments.isEmpty()) {
             Paragraph attachmentsTitle = new Paragraph("Pièces Jointes", headerFont);
@@ -394,14 +371,12 @@ public class MedicalRecordService {
             PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100);
             table.setWidths(new float[]{3, 2, 2, 3});
-            
-            // En-têtes
+
             addTableHeader(table, "Fichier", headerFont);
             addTableHeader(table, "Type", headerFont);
             addTableHeader(table, "Date", headerFont);
             addTableHeader(table, "Description", headerFont);
-            
-            // Lignes
+
             for (MedicalAttachment attachment : attachments) {
                 addTableCell(table, attachment.getFileName(), normalFont);
                 addTableCell(table, attachment.getAttachmentType().name(), normalFont);
@@ -411,8 +386,7 @@ public class MedicalRecordService {
             
             document.add(table);
         }
-        
-        // Notes générales
+
         if (record.getNotes() != null && !record.getNotes().trim().isEmpty()) {
             Paragraph notesTitle = new Paragraph("Notes Générales", headerFont);
             notesTitle.setSpacingBefore(20);
@@ -422,8 +396,7 @@ public class MedicalRecordService {
             Paragraph notes = new Paragraph(record.getNotes(), normalFont);
             document.add(notes);
         }
-        
-        // Pied de page
+
         Paragraph footer = new Paragraph();
         footer.add(new Chunk("Document généré le: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm")), smallFont));
         footer.setSpacingBefore(30);
@@ -470,7 +443,7 @@ public class MedicalRecordService {
                 .id(visit.getId())
                 .medicalRecordId(visit.getMedicalRecord().getId())
                 .doctorId(visit.getDoctor().getId())
-                .doctorName("Dr. " + visit.getDoctor().getUser().getPrenom() + " " + visit.getDoctor().getUser().getNom())
+                .doctorName("Dr. " + visit.getDoctor().getUser().getFirstName() + " " + visit.getDoctor().getUser().getLastName())
                 .visitDate(visit.getVisitDate())
                 .visitTime(visit.getVisitTime())
                 .reason(visit.getReason())

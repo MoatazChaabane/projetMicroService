@@ -11,39 +11,33 @@ import tn.pi.back.model.Specialite;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     
-    // Trouver un docteur non supprimé par ID
     @Query("SELECT d FROM Doctor d WHERE d.id = :id AND d.deleted = false")
     Optional<Doctor> findByIdAndDeletedFalse(@Param("id") Long id);
     
-    // Trouver un docteur par user ID
     @Query("SELECT d FROM Doctor d WHERE d.user.id = :userId AND d.deleted = false")
     Optional<Doctor> findByUserId(@Param("userId") Long userId);
     
-    // Recherche par spécialité
     @Query("SELECT d FROM Doctor d WHERE d.deleted = false AND d.specialite = :specialite")
     Page<Doctor> findBySpecialite(@Param("specialite") Specialite specialite, Pageable pageable);
     
-    // Recherche par spécialité et téléconsultation
     @Query("SELECT d FROM Doctor d WHERE d.deleted = false AND d.specialite = :specialite AND d.teleconsultation = :teleconsultation")
     Page<Doctor> findBySpecialiteAndTeleconsultation(
             @Param("specialite") Specialite specialite,
             @Param("teleconsultation") Boolean teleconsultation,
             Pageable pageable);
     
-    // Recherche par spécialité avec note minimum
     @Query("SELECT d FROM Doctor d WHERE d.deleted = false AND d.specialite = :specialite AND d.rating >= :ratingMin")
     Page<Doctor> findBySpecialiteAndRatingMin(
             @Param("specialite") Specialite specialite,
             @Param("ratingMin") Double ratingMin,
             Pageable pageable);
     
-    // Recherche par distance (formule Haversine en SQL natif)
-    // Distance en kilomètres
     @Query(value = "SELECT d.*, " +
             "(6371 * acos(cos(radians(:latitude)) * cos(radians(d.latitude)) * " +
             "cos(radians(d.longitude) - radians(:longitude)) + " +
@@ -60,7 +54,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
             @Param("rayonKm") Double rayonKm,
             Pageable pageable);
     
-    // Recherche combinée : spécialité + distance
     @Query(value = "SELECT d.*, " +
             "(6371 * acos(cos(radians(:latitude)) * cos(radians(d.latitude)) * " +
             "cos(radians(d.longitude) - radians(:longitude)) + " +
@@ -79,7 +72,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
             @Param("rayonKm") Double rayonKm,
             Pageable pageable);
     
-    // Recherche avec disponibilité (vérifie si un créneau existe pour le jour et l'heure)
     @Query("SELECT DISTINCT d FROM Doctor d " +
             "JOIN d.horaires h " +
             "WHERE d.deleted = false " +
@@ -93,7 +85,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
             @Param("heure") LocalTime heure,
             Pageable pageable);
     
-    // Recherche complète : spécialité + distance + disponibilité
     @Query(value = "SELECT DISTINCT d.*, " +
             "(6371 * acos(cos(radians(:latitude)) * cos(radians(d.latitude)) * " +
             "cos(radians(d.longitude) - radians(:longitude)) + " +
@@ -120,13 +111,10 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
             @Param("heure") LocalTime heure,
             Pageable pageable);
     
-    // Compter les docteurs non supprimés
     long countByDeletedFalse();
     
-    // Trouver tous les docteurs non supprimés avec pagination
     Page<Doctor> findByDeletedFalse(Pageable pageable);
     
-    // Recherche de matching : récupérer tous les docteurs dans un rayon avec distance calculée
     @Query(value = "SELECT d.*, " +
             "(6371 * acos(cos(radians(:latitude)) * cos(radians(d.latitude)) * " +
             "cos(radians(d.longitude) - radians(:longitude)) + " +
@@ -142,7 +130,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
             @Param("longitude") Double longitude,
             @Param("rayonKm") Double rayonKm);
     
-    // Recherche de matching avec spécialité : récupérer tous les docteurs dans un rayon avec distance calculée
     @Query(value = "SELECT d.*, " +
             "(6371 * acos(cos(radians(:latitude)) * cos(radians(d.latitude)) * " +
             "cos(radians(d.longitude) - radians(:longitude)) + " +

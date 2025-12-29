@@ -16,19 +16,16 @@ const Appointments = () => {
   const [viewMode, setViewMode] = useState('list') // 'list' ou 'calendar'
   const [doctorId, setDoctorId] = useState(null)
   const [patientId, setPatientId] = useState(null)
-  
-  // Pagination
+
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
-  
-  // Modals
+
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState(null)
-  
-  // Filtres
+
   const [statusFilter, setStatusFilter] = useState('ALL')
 
   const userRole = user?.role || ''
@@ -52,13 +49,13 @@ const Appointments = () => {
         const response = await doctorAPI.getDoctorByUserId(userId)
         setDoctorId(response.data.id)
       } else if (userRole === 'PATIENT') {
-        // Pour les patients, on utilise directement l'userId comme patientId
-        // (à adapter selon votre modèle de données si nécessaire)
+
+
         setPatientId(userId)
       }
     } catch (err) {
       console.error('Error fetching user profile:', err)
-      // Si l'utilisateur n'a pas encore de profil docteur/patient, on continue quand même
+
     }
   }
 
@@ -83,15 +80,15 @@ const Appointments = () => {
           size: pageSize
         })
       } else if (userRole === 'ADMIN') {
-        // Admin : afficher tous les RDV (on prend le premier docteur comme exemple)
-        // Dans une vraie app, on pourrait avoir un filtre pour choisir le docteur
+
+
         if (doctorId) {
           response = await appointmentAPI.getDoctorAppointments(doctorId, {
             page: currentPage,
             size: pageSize
           })
         } else {
-          // Si pas de docteur sélectionné, on prend le premier disponible
+
           const doctorsRes = await doctorAPI.getAllDoctors({ page: 0, size: 1 })
           if (doctorsRes.data.content && doctorsRes.data.content.length > 0) {
             const firstDoctorId = doctorsRes.data.content[0].id
@@ -116,11 +113,10 @@ const Appointments = () => {
       }
       
       let appointmentsData = response.data.content || []
-      
-      // Filtrer par statut si nécessaire
+
       if (statusFilter !== 'ALL') {
         appointmentsData = appointmentsData.filter(apt => apt.status === statusFilter)
-        // Recalculer totalElements après filtrage côté client
+
         setTotalElements(appointmentsData.length)
       } else {
         setTotalElements(response.data.totalElements || 0)

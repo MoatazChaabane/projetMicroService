@@ -51,8 +51,7 @@ public class Prescription {
     
     @Column(length = 100)
     private String pdfId; // ID du fichier si stocké dans GridFS
-    
-    // Signature numérique
+
     @Column(length = 64)
     private String signatureHash; // SHA-256 hash
     
